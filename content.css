@@ -1,0 +1,504 @@
+/*
+ * Two ways to get a read tweet out of your way.
+ *
+ * Dimming is free, since opacity changes no layout. Hiding collapses the row,
+ * which the content script pairs with a scroll anchor so the feed does not
+ * shift under you.
+ */
+div[data-testid="cellInnerDiv"].trf-read {
+  opacity: var(--trf-dim, 0.35);
+  transition: opacity 0.18s ease-out;
+}
+
+div[data-testid="cellInnerDiv"].trf-read:hover,
+div[data-testid="cellInnerDiv"].trf-read:focus-within {
+  opacity: 1;
+}
+
+/*
+ * Collapsing a row frees no space by itself: X absolutely positions every row
+ * and drives it with a transform, so the row keeps its slot until X re-measures
+ * the timeline. content.js follows that shift; the browser cannot, since scroll
+ * anchoring only covers layout the browser performed itself.
+ */
+div[data-testid="cellInnerDiv"].trf-hidden {
+  display: none !important;
+}
+
+/*
+ * The line X draws between the posts of a thread runs from avatar to avatar,
+ * so with the avatars gone, the piece above a post is left as a stray tick.
+ */
+:root.trf-no-avatars article[data-testid="tweet"] [data-trf-connector] {
+  display: none !important;
+}
+
+/*
+ * The rest of a thread in the Home timeline, after its first post. content.js
+ * finds it by the line X draws between the posts.
+ */
+:root.trf-first-of-thread [data-trf-thread-rest] {
+  display: none !important;
+}
+
+/*
+ * Profile pictures. The avatar sits alone in a fixed-width column beside the
+ * tweet body, so hiding only the picture would leave an empty gutter: the whole
+ * column goes, and the body takes the width back. A quoted tweet puts its small
+ * avatar next to the author name instead, so a column that also holds the name
+ * is left standing and only the picture itself is hidden.
+ */
+:root.trf-no-avatars article[data-testid="tweet"] [data-testid="Tweet-User-Avatar"],
+:root.trf-no-avatars
+  article[data-testid="tweet"]
+  div:has(> [data-testid="Tweet-User-Avatar"]):not(:has([data-testid="User-Name"])) {
+  display: none !important;
+}
+
+/*
+ * Post first, author below. The name row and the tweet body are siblings in a
+ * flex column, so moving the name is just a matter of order, with the action
+ * bar kept last. content.js tags the two rows, since X gives them no hook.
+ */
+:root.trf-post-first [data-trf-byline] {
+  order: 2;
+  margin-top: 20px;
+}
+
+/*
+ * An empty line's worth of space sets the author apart from the post. On a
+ * repost, the "X reposted" line comes first, so it takes the space instead.
+ * content.js appends that line after the name, hence the sibling selector.
+ */
+:root.trf-post-first:not(.trf-cards) [data-trf-byline]:has(~ [data-trf-repost]) {
+  margin-top: 4px;
+}
+
+:root.trf-post-first [data-trf-actions] {
+  order: 3;
+}
+
+/*
+ * The action bar under each tweet (reply, repost, like, views, bookmark,
+ * share), and the "..." menu beside the author name. X's keyboard shortcuts
+ * still work on the selected tweet.
+ */
+:root.trf-no-actions [data-trf-actions],
+:root.trf-no-actions [data-trf-header-control],
+:root.trf-no-actions article[data-testid="tweet"] [data-testid="caret"] {
+  display: none !important;
+}
+
+/*
+ * The "X reposted" line lives above the whole tweet, outside the body column,
+ * so content.js copies it into the column, where it sits just above the name.
+ * The original is hidden. With cards, the line goes altogether, so a repost
+ * reads like any other post.
+ */
+:root.trf-post-first [data-trf-context],
+:root.trf-cards [data-trf-context] {
+  display: none !important;
+}
+
+/*
+ * The repost line was what spaced a reposted tweet from the one above it, so
+ * with the line gone the text would sit flush against the top.
+ */
+:root.trf-post-first [data-trf-context] + *,
+:root.trf-cards [data-trf-context] + * {
+  padding-top: 12px;
+}
+
+[data-trf-repost] {
+  display: none;
+}
+
+:root.trf-post-first:not(.trf-cards) [data-trf-repost] {
+  order: 1;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  margin-top: 20px;
+  color: rgb(113, 118, 123);
+  font: 700 13px/16px -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+}
+
+:root.trf-post-first [data-trf-repost] svg {
+  width: 14px;
+  height: 14px;
+  flex: none;
+  fill: currentColor;
+}
+
+:root.trf-post-first [data-trf-repost] a {
+  color: inherit;
+  text-decoration: none;
+}
+
+:root.trf-post-first [data-trf-repost] a:hover {
+  text-decoration: underline;
+}
+
+/*
+ * Images, videos and link cards stay out of the feed, and show only on the
+ * page of the post they belong to, which is where clicking a post takes you.
+ */
+:root.trf-hide-media article:not([data-trf-focal]) [data-trf-media] {
+  display: none !important;
+}
+
+/*
+ * The navigation bar down the left edge, with the post button and account.
+ * X pins the feed to the left of the main area, next to where the bar was, so
+ * with the bar gone the feed is centred in the whole window instead.
+ */
+:root.trf-no-sidebar header[role="banner"] {
+  display: none !important;
+}
+
+:root.trf-no-sidebar main[role="main"] {
+  align-items: center !important;
+}
+
+/* The "What's happening?" box above the Home timeline. */
+:root.trf-no-composer [data-trf-composer] {
+  display: none !important;
+}
+
+/*
+ * A card whose post something else hid, such as an ad blocker, which would
+ * otherwise show as a stray line. Found by content.js.
+ */
+:root.trf-cards [data-trf-empty] {
+  display: none !important;
+}
+
+/* "Who to follow", in the right sidebar and inside the timeline. */
+:root.trf-no-who-to-follow [data-trf-who-to-follow] {
+  display: none !important;
+}
+
+/*
+ * Every post as a card of its own, with a gap around it. The card is the row's
+ * only child, which already draws X's separator line along its bottom; giving
+ * it all four sides and round corners turns that into the card.
+ *
+ * The gap is a margin on the card, inside the row, not padding on the row. X
+ * stacks the rows by the size its ResizeObserver reports, which is the content
+ * box: padding on the row is left out, so the rows overlap it and the cards
+ * end up touching. In a flex column the card's margin is part of that content
+ * box and gets counted. X's rows already are one; saying so here keeps the
+ * margins from collapsing out of the row should that ever change.
+ *
+ * Rows hidden for other reasons are left out by name: this rule outranks the
+ * plainer selectors that hide them, !important or not.
+ */
+:root.trf-cards
+  div[data-testid="cellInnerDiv"]:not(.trf-hidden):not([data-trf-who-to-follow]):not(
+    [data-trf-thread-rest]
+  ):not([data-trf-empty]):has(article[data-testid="tweet"]) {
+  display: flex !important;
+  flex-direction: column !important;
+}
+
+:root.trf-cards div[data-testid="cellInnerDiv"]:has(article[data-testid="tweet"]) > div {
+  margin: 12px 8px;
+  border: 1px solid rgba(128, 128, 128, 0.35) !important;
+  border-radius: 16px;
+  overflow: hidden;
+  position: relative;
+}
+
+/*
+ * Replies on a post's page, indented under the post, with a line running down
+ * from the post's card past each of them and a short branch into each reply,
+ * so they read as answers to it rather than more posts. content.js marks the
+ * rows. X positions every row absolutely, so the line can be drawn in each
+ * row's own box, and the rows' pieces meet end to end.
+ */
+:root.trf-cards div[data-testid="cellInnerDiv"][data-trf-reply]:not([data-trf-reply="root"]) > div {
+  margin-left: 40px;
+}
+
+:root.trf-cards div[data-testid="cellInnerDiv"][data-trf-reply]::before,
+:root.trf-cards div[data-testid="cellInnerDiv"][data-trf-reply="post"]::after,
+:root.trf-cards div[data-testid="cellInnerDiv"][data-trf-reply="last"]::after {
+  content: "";
+  position: absolute;
+  left: 23px;
+  width: 2px;
+  background-color: rgba(128, 128, 128, 0.35);
+  pointer-events: none;
+}
+
+/* Down the whole row, between and past the replies. */
+:root.trf-cards div[data-testid="cellInnerDiv"][data-trf-reply]::before {
+  top: 0;
+  bottom: 0;
+}
+
+/* From the bottom of the post's card to the end of its row. */
+:root.trf-cards div[data-testid="cellInnerDiv"][data-trf-reply="root"]::before {
+  top: auto;
+  height: 12px;
+}
+
+/* Into the last reply only, where the line ends. */
+:root.trf-cards div[data-testid="cellInnerDiv"][data-trf-reply="last"]::before {
+  bottom: auto;
+  height: 34px;
+}
+
+/* The branch into each reply, at the height of its first line. */
+:root.trf-cards div[data-testid="cellInnerDiv"][data-trf-reply="post"]::after,
+:root.trf-cards div[data-testid="cellInnerDiv"][data-trf-reply="last"]::after {
+  top: 32px;
+  left: 25px;
+  width: 15px;
+  height: 2px;
+}
+
+/*
+ * The button that copies a picture of the card, in its top right corner. It
+ * would sit over the first line of the post, so it only shows while the
+ * pointer is on the card, and on a blurred backdrop so the text under it does
+ * not show through. It and the dimming are out of the way while the picture
+ * is taken.
+ */
+[data-trf-capture] {
+  display: none;
+}
+
+:root.trf-cards.trf-camera [data-trf-capture] {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  position: absolute;
+  top: 8px;
+  right: 8px;
+  z-index: 1;
+  width: 32px;
+  height: 32px;
+  padding: 0;
+  border: none;
+  border-radius: 50%;
+  background-color: rgba(128, 128, 128, 0.22);
+  backdrop-filter: blur(8px);
+  color: rgb(113, 118, 123);
+  cursor: pointer;
+  opacity: 0;
+  transition: opacity 0.15s ease-out, color 0.15s ease-out;
+}
+
+:root.trf-cards.trf-camera div[data-testid="cellInnerDiv"]:hover [data-trf-capture],
+:root.trf-cards.trf-camera [data-trf-capture]:focus-visible,
+:root.trf-cards.trf-camera [data-trf-capture][data-state] {
+  opacity: 1;
+}
+
+:root.trf-cards.trf-camera [data-trf-capture]:hover,
+:root.trf-cards.trf-camera [data-trf-capture][data-state="done"] {
+  color: rgb(29, 155, 240);
+}
+
+:root.trf-cards.trf-camera [data-trf-capture][data-state="failed"] {
+  color: rgb(244, 33, 46);
+}
+
+:root.trf-cards.trf-camera [data-trf-capture] svg {
+  width: 18px;
+  height: 18px;
+}
+
+:root[data-trf-capturing] [data-trf-capture] {
+  visibility: hidden !important;
+}
+
+:root[data-trf-capturing] div[data-testid="cellInnerDiv"].trf-read {
+  opacity: 1 !important;
+  transition: none !important;
+}
+
+/*
+ * A promoted post. X wraps the whole post in a tracking box with impression
+ * pixels, where an ordinary post only has one around a video. An ad blocker
+ * that hides the post leaves its card empty, which shows as a stray line, so
+ * the whole row goes.
+ */
+:root.trf-cards
+  div[data-testid="cellInnerDiv"]:has([data-testid="placementTracking"] > article[data-testid="tweet"]) {
+  display: none !important;
+}
+
+/*
+ * The author's name, handle and date sit at the right edge of the card. X nests
+ * the name in a few boxes, each only as wide as its content, inside a row that
+ * also holds the "..." menu, so an auto left margin on every box around the
+ * name pushes it right in whichever one has room to spare. The name and handle
+ * wrap onto two lines when they do not fit, so both lines keep to the right.
+ */
+:root.trf-cards [data-trf-byline] div:has([data-testid="User-Name"]),
+:root.trf-cards [data-trf-byline] [data-testid="User-Name"] {
+  margin-left: auto !important;
+}
+
+:root.trf-cards [data-trf-byline] [data-testid="User-Name"] {
+  justify-content: flex-end !important;
+}
+
+/* The same line on a box inside a post's row, found by content.js. */
+:root.trf-cards [data-trf-separator] {
+  border-top-width: 0 !important;
+  border-bottom-width: 0 !important;
+}
+
+/*
+ * Rows that hold no post, such as the empty divider X puts after a group of
+ * posts or a module, still draw X's separator line across the feed. Between
+ * cards that reads as a stray rule, so drop their borders. The rows stay: the
+ * last one is what X watches to load more.
+ */
+:root.trf-cards div[data-testid="cellInnerDiv"]:not(:has(article[data-testid="tweet"])),
+:root.trf-cards div[data-testid="cellInnerDiv"]:not(:has(article[data-testid="tweet"])) * {
+  border-top-width: 0 !important;
+  border-bottom-width: 0 !important;
+}
+
+/*
+ * With every post framed, the lines down either side of the feed and the one
+ * under the tab bar are noise, and so is the "+" next to the tabs. The blue
+ * underline of the selected tab is a box of its own, not a border, so it
+ * stays.
+ */
+:root.trf-cards [data-testid="primaryColumn"] {
+  border-left: none !important;
+  border-right: none !important;
+}
+
+:root.trf-cards [data-trf-header-line="bottom"] {
+  border-bottom-width: 0 !important;
+  box-shadow: none !important;
+}
+
+:root.trf-cards [data-trf-header-line="top"] {
+  border-top-width: 0 !important;
+}
+
+/* Kept in place rather than removed, so the feed below does not move up. */
+:root.trf-cards [data-trf-header-line="box"] {
+  visibility: hidden !important;
+}
+
+:root.trf-cards [data-trf-header-button] {
+  display: none !important;
+}
+
+/*
+ * The tabs ("For you", "Following", pinned lists) as a card of their own, the
+ * same width, border and corners as the posts below, with the selected tab
+ * shown as a filled pill. X marks the selected tab with an underline, a box of
+ * its own with nothing in it, which the pill replaces.
+ *
+ * The border is forced, since the tab bar's own edge is where X draws the line
+ * under the tabs, which the rules above take away.
+ */
+:root.trf-cards [data-trf-tabs] {
+  flex-grow: 1;
+  margin: 8px 8px 0;
+  padding: 4px;
+  border: 1px solid rgba(128, 128, 128, 0.35) !important;
+  box-shadow: none !important;
+  border-radius: 16px;
+  overflow: hidden;
+}
+
+:root.trf-cards [data-trf-tabs] [role="tab"] {
+  border-radius: 12px;
+  overflow: hidden;
+}
+
+:root.trf-cards [data-trf-tabs] [role="tab"][aria-selected="true"] {
+  background-color: rgba(128, 128, 128, 0.18);
+}
+
+:root.trf-cards [data-trf-tabs] [role="tab"] div:empty {
+  display: none !important;
+}
+
+/*
+ * The dim / hide / show switch, at the right end of the tab bar. The tabs keep
+ * the rest of the width, and scroll as before when there are too many of them.
+ */
+[data-trf-mode-toggle] {
+  display: none;
+}
+
+:root.trf-cards [data-trf-tabs] {
+  display: flex !important;
+  align-items: center;
+  gap: 4px;
+}
+
+:root.trf-cards [data-trf-tabs] > :not([data-trf-mode-toggle]) {
+  flex: 1 1 auto;
+  min-width: 0;
+}
+
+:root.trf-cards [data-trf-mode-toggle] {
+  display: flex;
+  flex: none;
+  gap: 2px;
+  padding: 3px;
+  margin-right: 4px;
+  border-radius: 12px;
+  background-color: rgba(128, 128, 128, 0.1);
+}
+
+:root.trf-cards [data-trf-mode-toggle] button {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 34px;
+  height: 30px;
+  padding: 0;
+  border: none;
+  border-radius: 9px;
+  background: none;
+  color: rgb(113, 118, 123);
+  cursor: pointer;
+  transition: background-color 0.15s ease-out, color 0.15s ease-out;
+}
+
+:root.trf-cards [data-trf-mode-toggle] button:hover {
+  background-color: rgba(128, 128, 128, 0.15);
+}
+
+:root.trf-cards [data-trf-mode-toggle] button[aria-checked="true"] {
+  background-color: rgba(29, 155, 240, 0.18);
+  color: rgb(29, 155, 240);
+}
+
+:root.trf-cards [data-trf-mode-toggle] button:focus-visible {
+  outline: 2px solid rgb(29, 155, 240);
+  outline-offset: 1px;
+}
+
+:root.trf-cards [data-trf-mode-toggle] svg {
+  width: 18px;
+  height: 18px;
+}
+
+/*
+ * Text X clips to a few lines with a line clamp is all there already, so lift
+ * the clamp. A long post whose text is cut short is expanded by content.js.
+ */
+:root.trf-expand-posts [data-testid="tweetText"] {
+  -webkit-line-clamp: unset !important;
+  max-height: none !important;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  div[data-testid="cellInnerDiv"].trf-read {
+    transition: none;
+  }
+}

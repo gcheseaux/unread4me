@@ -1,0 +1,128 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <link rel="stylesheet" href="popup.css" />
+    <title>unread4me</title>
+  </head>
+  <body>
+    <header>
+      <h1>unread4me</h1>
+      <p id="status" class="status">Checking the current tab…</p>
+    </header>
+
+    <fieldset class="modes">
+      <legend>Read tweets</legend>
+      <div class="segmented">
+        <input type="radio" name="mode" id="mode-dim" value="dim" />
+        <label for="mode-dim">Dim</label>
+
+        <input type="radio" name="mode" id="mode-hide" value="hide" />
+        <label for="mode-hide">Hide</label>
+
+        <input type="radio" name="mode" id="mode-show" value="show" />
+        <label for="mode-show">Show</label>
+      </div>
+    </fieldset>
+
+    <label class="row" id="dimRow">
+      <span>Dim strength</span>
+      <select id="dimOpacity">
+        <option value="0.6">Light</option>
+        <option value="0.35">Medium</option>
+        <option value="0.2">Strong</option>
+        <option value="0.1">Barely there</option>
+      </select>
+    </label>
+
+    <label class="row">
+      <span>Mark as read after</span>
+      <select id="dwellMs">
+        <option value="500">0.5 s in view</option>
+        <option value="1000">1 s in view</option>
+        <option value="2000">2 s in view</option>
+        <option value="4000">4 s in view</option>
+      </select>
+    </label>
+
+    <label class="row">
+      <span>Following tab label</span>
+      <input type="text" id="followingLabel" spellcheck="false" />
+    </label>
+
+    <label class="row switch">
+      <span>Hide profile pictures</span>
+      <input type="checkbox" id="hideAvatars" />
+    </label>
+
+    <label class="row switch">
+      <span>Post first, author and repost below</span>
+      <input type="checkbox" id="postFirst" />
+    </label>
+
+    <label class="row switch">
+      <span>Images and videos only on the post's page</span>
+      <input type="checkbox" id="hideMedia" />
+    </label>
+
+    <label class="row switch">
+      <span>Hide the post and reply boxes</span>
+      <input type="checkbox" id="hideComposer" />
+    </label>
+
+    <label class="row switch">
+      <span>Hide the left navigation bar</span>
+      <input type="checkbox" id="hideSidebar" />
+    </label>
+
+    <label class="row switch">
+      <span>Show long posts in full</span>
+      <input type="checkbox" id="expandPosts" />
+    </label>
+
+    <label class="row switch">
+      <span>Hide "Who to follow" and "Discover more"</span>
+      <input type="checkbox" id="hideWhoToFollow" />
+    </label>
+
+    <label class="row switch">
+      <span>Hide the buttons and menu on posts</span>
+      <input type="checkbox" id="hideActions" />
+    </label>
+
+    <label class="row switch">
+      <span>Show each post as a card</span>
+      <input type="checkbox" id="cards" />
+    </label>
+
+    <label class="row switch">
+      <span>Only the first post of a thread on Home</span>
+      <input type="checkbox" id="firstOfThread" />
+    </label>
+
+    <label class="row switch">
+      <span>Camera button on cards</span>
+      <input type="checkbox" id="cameraButton" />
+    </label>
+
+    <label class="row switch">
+      <span>Log to the page console</span>
+      <input type="checkbox" id="debug" />
+    </label>
+
+    <dl class="stats">
+      <div>
+        <dt>Remembered</dt>
+        <dd id="remembered">0</dd>
+      </div>
+      <div>
+        <dt id="markedLabel">Read here</dt>
+        <dd id="marked">0</dd>
+      </div>
+    </dl>
+
+    <button id="forget" class="danger" type="button">Forget everything</button>
+
+    <script src="popup.js"></script>
+  </body>
+</html>
