@@ -6,7 +6,7 @@ A post counts as read once it has dwelled in your viewport long enough (1 second
 
 It also strips the feed down to what people wrote. Each post is a compact card of plain text, easy to read and quick to scan: no profile pictures, no images or videos, no like, repost and view counts, no buttons, no suggestions and no ads. Nothing pulls your eye away from the words.
 
-When a post is worth more of your time, click it. Its page opens with the full post, its images and videos, and its replies linked underneath, so you get the whole picture only for the posts you choose.
+When a post is worth more of your time, click it. Its page opens in a new window, with the full post, its images and videos, and its replies linked underneath, so you get the whole picture only for the posts you choose.
 
 <img src="docs/screenshot-feed.png" alt="The Following feed with unread4me: the tabs in a card of their own, with the Dim, Hide and Show switch at the right end, and each post in a rounded card with the author's name right-aligned under the text" width="260"> <img src="docs/screenshot-post.png" alt="A post opened on its own page with unread4me: the full post with its photo, date and view count, and its replies indented underneath, linked to it by a line" width="260"> <img src="docs/screenshot-profile.png" alt="An X profile with unread4me: each post in a rounded card, with no profile pictures or buttons, and the author's name right-aligned under the text" width="260">
 
@@ -69,6 +69,8 @@ These apply to every post on x.com, not just the Following feed, and each can be
 
 - **Only the first post of a thread on Home.** A thread shows in the Home timeline as its first post alone. Open that post to read the rest, which shows as its replies. This also applies when X shows a post together with the one it answers: only the post answered is kept.
 
+- **Open posts in a new window.** A click on a post opens its page in a new browser window, so the feed stays where you left it. A click on a quoted post opens the quoted post. Links to a profile, a mention or another site, the buttons, and clicks with a modifier key keep their usual behaviour, and so does a click that ends a text selection.
+
 - **Camera button on cards.** Off by default. A button in the top right corner of each card, shown on hover, copies a picture of the card to the clipboard as a PNG, at most 720 pixels wide. Turning it on asks for the access to all sites described below, and turning it off gives that access back.
 
 ## Permissions
@@ -99,7 +101,7 @@ These apply to every post on x.com, not just the Following feed, and each can be
 
 - [`background.js`](background.js)
 
-  Service worker. It is the sole writer of the read history, so several open x.com tabs cannot clobber each other, and it prunes entries older than 30 days (capped at 20'000 ids). It also takes the screenshot for the camera button, and keeps that switch in step with the optional permission.
+  Service worker. It is the sole writer of the read history, so several open x.com tabs cannot clobber each other, and it prunes entries older than 30 days (capped at 20'000 ids). It also opens a clicked post in a new window, takes the screenshot for the camera button, and keeps that switch in step with the optional permission.
 
 - [`popup.html`](popup.html), [`popup.css`](popup.css), [`popup.js`](popup.js)
 

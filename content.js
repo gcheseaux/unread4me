@@ -84,6 +84,7 @@
     hideActions: true,
     cards: true,
     firstOfThread: true,
+    openInWindow: true,
     cameraButton: false,
     debug: false
   };
@@ -1374,6 +1375,66 @@
     chrome.runtime.sendMessage({ type: "badge", count }).catch(() => {});
   }
 
+  /* ------------------------------------------------------------------ clicks */
+
+  /** A post's own page, without the /photo/1 or /analytics that can follow. */
+  const STATUS_PATH = /^\/[^/]+\/status\/\d+\/?$/;
+
+  /**
+   * A click on a post opens its page in a new window, so the feed stays where
+   * it was. Links to anything else inside the post, such as the author, a
+   * mention or an outside site, keep their usual behaviour, and so do buttons
+   * and modified clicks, which already open a tab.
+   */
+  function onClick(event) {
+    if (!settings.openInWindow || contextGone()) return;
+    if (event.button !== 0 || event.metaKey || event.ctrlKey || event.shiftKey || event.altKey) {
+      return;
+    }
+
+    const target = event.target;
+    if (!(target instanceof Element)) return;
+    const article = target.closest(TWEET_SELECTOR);
+    // The post a page is about is already open, and clicking it does nothing.
+    if (!article || article.hasAttribute("data-trf-focal")) return;
+    if (target.closest('button, [role="button"], input, textarea, video, [data-trf-capture]')) return;
+    // Letting go after selecting some text is not meant as a click on the post.
+    if (!window.getSelection().isCollapsed) return;
+
+    const href = postLinkFor(target, article);
+    if (!href) return;
+
+    // Capture on the document runs before X's handler on its React root.
+    event.preventDefault();
+    event.stopImmediatePropagation();
+    const url = new URL(href, location.origin).href;
+    log(`opening ${url} in a new window`);
+    chrome.runtime.sendMessage({ type: "openWindow", url }).catch(() => {});
+  }
+
+  /**
+   * The page the click is about: the status link clicked, the quoted post when
+   * the click lands in one, or the post itself. Null leaves the click to X.
+   */
+  function postLinkFor(target, article) {
+    const anchor = target.closest("a[href]");
+    if (anchor) {
+      const href = anchor.getAttribute("href");
+      return STATUS_PATH.test(href) ? href : null;
+    }
+
+    const quoted = target.closest('[role="link"]');
+    if (quoted && article.contains(quoted) && quoted !== article) {
+      const link = quoted.querySelector('a[href*="/status/"]');
+      const href = link && link.getAttribute("href");
+      return href && STATUS_PATH.test(href) ? href : null;
+    }
+
+    const stamp = article.querySelector('a[href*="/status/"] time');
+    const href = stamp && stamp.closest("a").getAttribute("href");
+    return href && STATUS_PATH.test(href) ? href : null;
+  }
+
   /* ---------------------------------------------------------------- keyboard */
 
   /**
@@ -1505,6 +1566,7 @@
 
   // Capture, so we get the keys before X's own handler does.
   document.addEventListener("keydown", onKeyDown, true);
+  document.addEventListener("click", onClick, true);
   window.addEventListener("scroll", requestScan, { passive: true });
   window.addEventListener("resize", requestScan, { passive: true });
   window.addEventListener("pagehide", flush);

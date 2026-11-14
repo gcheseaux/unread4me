@@ -17,6 +17,7 @@ const DEFAULT_SETTINGS = {
   hideActions: true,
   cards: true,
   firstOfThread: true,
+  openInWindow: true,
   cameraButton: false,
   debug: false
 };
@@ -52,6 +53,7 @@ const els = {
   hideActions: document.getElementById("hideActions"),
   cards: document.getElementById("cards"),
   firstOfThread: document.getElementById("firstOfThread"),
+  openInWindow: document.getElementById("openInWindow"),
   cameraButton: document.getElementById("cameraButton"),
   debug: document.getElementById("debug"),
   remembered: document.getElementById("remembered"),
@@ -95,6 +97,7 @@ async function render() {
   els.hideActions.checked = settings.hideActions;
   els.cards.checked = settings.cards;
   els.firstOfThread.checked = settings.firstOfThread;
+  els.openInWindow.checked = settings.openInWindow;
   els.cameraButton.checked =
     settings.cameraButton && (await chrome.permissions.contains(CAMERA_PERMISSION));
   els.debug.checked = settings.debug;
@@ -164,6 +167,9 @@ els.hideActions.addEventListener("change", () =>
 els.cards.addEventListener("change", () => save({ cards: els.cards.checked }));
 els.firstOfThread.addEventListener("change", () =>
   save({ firstOfThread: els.firstOfThread.checked })
+);
+els.openInWindow.addEventListener("change", () =>
+  save({ openInWindow: els.openInWindow.checked })
 );
 
 // Only the camera button needs access to every site, so that access is asked

@@ -1,5 +1,9 @@
 # Changelog
 
+## Unreleased
+
+- Opens a post in a new window when you click it, so the feed stays where it was. It can be switched off in the popup.
+
 ## 1.0.0, October 4, 2026
 
 First public release.

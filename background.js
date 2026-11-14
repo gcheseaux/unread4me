@@ -102,6 +102,21 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
       );
       return true;
 
+    // A content script cannot open a window of its own, only a pop-up without
+    // the address bar. Only pages on X are opened, whatever the message says.
+    case "openWindow": {
+      let url;
+      try {
+        url = new URL(message.url);
+      } catch {
+        return false;
+      }
+      if (url.protocol === "https:" && ["x.com", "twitter.com"].includes(url.hostname)) {
+        chrome.windows.create({ url: url.href, focused: true }).catch(() => {});
+      }
+      return false;
+    }
+
     default:
       return false;
   }
