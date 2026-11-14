@@ -1,6 +1,6 @@
 # Changelog
 
-## Unreleased
+## 1.1.0, November 14, 2026
 
 - Opens a post in a new window when you click it, so the feed stays where it was. It can be switched off in the popup.
 

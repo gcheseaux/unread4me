@@ -1,7 +1,7 @@
 {
   "manifest_version": 3,
   "name": "unread4me",
-  "version": "1.0.0",
+  "version": "1.1.0",
   "description": "Dims or hides the posts you have already read in the Following feed on x.com, and clears the clutter around them.",
   "permissions": ["storage"],
   "optional_host_permissions": ["<all_urls>"],
